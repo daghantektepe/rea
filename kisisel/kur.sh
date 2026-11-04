@@ -5,6 +5,7 @@
 #   kisisel/kur.sh guncelle        # upstream'i (morluto/rea) birleştir, yeniden derle, kurulumu yenile
 #   kisisel/kur.sh guncelle --push # birleştirdikten sonra fork'a da gönder
 #   kisisel/kur.sh dogrula         # doctor + küçük bir duman testi
+#   kisisel/kur.sh beceriler       # yalnızca Türkçe Claude Code skill'lerini bağla
 #
 # "kur" ve "guncelle" sonunda `rea setup` çalışır; bu komut değişiklik planını
 # gösterir ve onay ister. Ek argümanlar setup'a iletilir, örneğin:
@@ -76,6 +77,26 @@ upstream_birlestir() {
   fi
 }
 
+beceriler_kur() {
+  local hedef="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
+  local zaman
+  zaman="$(date +%Y%m%d%H%M%S)"
+  mkdir -p "$hedef"
+  bilgi "Türkçe skill'ler bağlanıyor: $hedef"
+  for kaynak in "$ROOT"/kisisel/beceriler/*/; do
+    local ad
+    ad="$(basename "$kaynak")"
+    local yer="$hedef/$ad"
+    if [[ -e "$yer" && ! -L "$yer" ]]; then
+      bilgi "  $ad zaten var (bağlantı değil); yedekleniyor: $yer.yedek-$zaman"
+      mv "$yer" "$yer.yedek-$zaman"
+    fi
+    ln -sfn "${kaynak%/}" "$yer"
+    printf '    /%s\n' "$ad"
+  done
+  bilgi "Skill'ler bu klasöre bağlı; 'guncelle' sonrası otomatik güncel kalır."
+}
+
 dogrula() {
   bilgi "rea doctor"
   node scripts/rea.mjs doctor || true
@@ -91,6 +112,7 @@ case "$komut" in
     on_kosullar
     derle
     ajan_kurulumu "$@"
+    beceriler_kur
     ;;
   guncelle)
     push=0
@@ -102,15 +124,19 @@ case "$komut" in
     upstream_birlestir "$push"
     derle
     ajan_kurulumu "${rest[@]+"${rest[@]}"}"
+    beceriler_kur
+    ;;
+  beceriler)
+    beceriler_kur
     ;;
   dogrula)
     on_kosullar
     dogrula
     ;;
   -h|--help|yardim)
-    sed -n '2,13p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    sed -n '2,14p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
     ;;
   *)
-    hata "Bilinmeyen komut: $komut (kur | guncelle | dogrula | yardim)"
+    hata "Bilinmeyen komut: $komut (kur | guncelle | dogrula | beceriler | yardim)"
     ;;
 esac

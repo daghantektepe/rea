@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    BepInEx 6 (Unity IL2CPP) eklenti şablonu.
+    Ön koşul: Oyuna BepInEx 6 IL2CPP kurun ve oyunu bir kez çalıştırın. BepInEx,
+    <Oyun>/BepInEx/interop/ altına oyunun "interop" DLL'lerini üretir; bu proje onları kullanır.
+    Derleme:  dotnet build -c Release -p:OyunKlasoru="C:\Steam\steamapps\common\OyunAdi"
+    Çıktı:    bin/Release/net6.0/OrnekIl2cppMod.dll  ->  <Oyun>/BepInEx/plugins/
+  -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>OrnekIl2cppMod</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <OyunKlasoru Condition="'$(OyunKlasoru)' == ''">$(MSBuildProjectDirectory)\..\oyun</OyunKlasoru>
+    <InteropKlasoru>$(OyunKlasoru)\BepInEx\interop</InteropKlasoru>
+    <RestoreAdditionalProjectSources>
+      https://api.nuget.org/v3/index.json;
+      https://nuget.bepinex.dev/v3/index.json
+    </RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.*" IncludeAssets="compile" />
+  </ItemGroup>
+
+  <!-- Oyunun interop DLL'leri: hepsine referans verilir, hiçbiri çıktıya kopyalanmaz. -->
+  <ItemGroup>
+    <Reference Include="$(InteropKlasoru)\*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
