@@ -2,6 +2,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
+using FM26AgenticEditor.Patches;
 using FM26AgenticEditor.Services;
 using FM26AgenticEditor.UI;
 using HarmonyLib;
@@ -14,7 +15,7 @@ namespace FM26AgenticEditor
     {
         public const string Guid = "tr.kisisel.fm26agenticeditor";
         public const string Ad = "FM26 In-Game Editor, Rehabilitasyon & Agentic FM";
-        public const string Surum = "0.3.0";
+        public const string Surum = "0.4.0";
 
         internal static ManualLogSource Gunluk;
         internal static ConfigEntry<KeyCode> PanelKisayolu;
@@ -27,6 +28,8 @@ namespace FM26AgenticEditor
         internal static FmVeriKoprusu VeriKoprusu;
         internal static RehabilitasyonServisi Rehabilitasyon;
         internal static AgenticFmServisi AgentServisi;
+        internal static Fm26HarmonyYamaYoneticisi YamaYoneticisi;
+        internal static PaketVeTemaUreticiServisi PaketUretici;
 
         public override void Load()
         {
@@ -50,6 +53,7 @@ namespace FM26AgenticEditor
             VeriKoprusu = new FmVeriKoprusu();
             Rehabilitasyon = new RehabilitasyonServisi();
             Rehabilitasyon.Ayarlar.SakatlikFrekansiCarpaniYuzde = Mathf.Clamp(SakatlikCarpaniYuzde.Value, 50, 100);
+            PaketUretici = new PaketVeTemaUreticiServisi();
 
             AgentServisi = new AgenticFmServisi
             {
@@ -58,7 +62,10 @@ namespace FM26AgenticEditor
                 ModelAdi = LlmModel.Value
             };
 
-            new Harmony(Guid).PatchAll();
+            var harmony = new Harmony(Guid);
+            harmony.PatchAll();
+            YamaYoneticisi = new Fm26HarmonyYamaYoneticisi(harmony);
+            YamaYoneticisi.DinamikKancalariTaraVeBagla();
 
             // Paneli IL2CPP'ye kaydet ve sahne geçişlerinde (Ana Menü -> Kariyer -> Maç) silinmesini önle.
             var panel = AddComponent<FmEditorPaneli>();

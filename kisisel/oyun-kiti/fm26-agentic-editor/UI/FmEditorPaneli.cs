@@ -18,8 +18,8 @@ namespace FM26AgenticEditor.UI
 
         private bool _acik;
         private int _aktifSekme;
-        private Rect _pencere = new Rect(30, 55, 880, 600);
-        private Rect _hudPencere = new Rect(30, 8, 880, 42);
+        private Rect _pencere = new Rect(30, 55, 900, 610);
+        private Rect _hudPencere = new Rect(30, 8, 900, 42);
         private GUI.WindowFunction _pencereFonksiyonu;
         private GUI.WindowFunction _hudFonksiyonu;
 
@@ -28,7 +28,7 @@ namespace FM26AgenticEditor.UI
         private string _kulupArama = "";
         private string _il2cppFiltre = "Player";
         private string _basinSorusu = "Genç yıldızımızın gelişimi ve gelecek maçtaki taktik planımız";
-        private string _regenXmlOnizleme = "";
+        private string _paketOnizleme = "";
         private OyuncuVerisi _seciliOyuncu;
         private KulupVerisi _seciliKulup;
 
@@ -130,8 +130,6 @@ namespace FM26AgenticEditor.UI
 
         private void OnGUI()
         {
-            // 1. Masaüstü Oyuncu Röntgeni (Mini-HUD Overlay - F9):
-            // FM26'nın konsol tipi kartlarında gizlenen Boy, Kilo, Ayak, Sakatlık Eğilimi, Serbest Kalma ve Hava Hakimiyeti şeridi.
             if (Plugin.Rehabilitasyon != null && Plugin.Rehabilitasyon.Ayarlar.MiniHudRontgenAcik && _seciliOyuncu != null)
             {
                 if (_hudFonksiyonu == null)
@@ -140,14 +138,13 @@ namespace FM26AgenticEditor.UI
                 _hudPencere = GUILayout.Window(82601, _hudPencere, _hudFonksiyonu, "Masaüstü Oyuncu Röntgeni (F9: Gizle/Göster | F8: Tam Editör)");
             }
 
-            // 2. Ana 5 Sekmeli Editör ve Rehabilitasyon Penceresi (F8):
             if (!_acik)
                 return;
 
             if (_pencereFonksiyonu == null)
                 _pencereFonksiyonu = DelegateSupport.ConvertDelegate<GUI.WindowFunction>((Action<int>)PencereCiz);
 
-            _pencere = GUILayout.Window(82600, _pencere, _pencereFonksiyonu, "FM26 In-Game Editor, Rehabilitasyon & Agentic FM (F8)");
+            _pencere = GUILayout.Window(82600, _pencere, _pencereFonksiyonu, "FM26 In-Game Editor, Rehabilitasyon & Agentic FM v0.4.0 (F8)");
         }
 
         private void HudCiz(int id)
@@ -185,9 +182,9 @@ namespace FM26AgenticEditor.UI
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(_aktifSekme == 0 ? "● [1] Oyuncu & Röntgen" : "[1] Oyuncu & Röntgen")) _aktifSekme = 0;
             if (GUILayout.Button(_aktifSekme == 1 ? "● [2] Kulüp & Süper Lig" : "[2] Kulüp & Süper Lig")) _aktifSekme = 1;
-            if (GUILayout.Button(_aktifSekme == 2 ? "● [3] Rehabilitasyon & Maç" : "[3] Rehabilitasyon & Maç")) _aktifSekme = 2;
+            if (GUILayout.Button(_aktifSekme == 2 ? "● [3] Rehabilitasyon & Paketler" : "[3] Rehabilitasyon & Paketler")) _aktifSekme = 2;
             if (GUILayout.Button(_aktifSekme == 3 ? "● [4] Agentic FM (AI)" : "[4] Agentic FM (AI)")) _aktifSekme = 3;
-            if (GUILayout.Button(_aktifSekme == 4 ? $"● [5] Undo ({Plugin.VeriKoprusu.GeriAlGecmisi.Count}) & IL2CPP" : $"[5] Undo ({Plugin.VeriKoprusu.GeriAlGecmisi.Count}) & IL2CPP")) _aktifSekme = 4;
+            if (GUILayout.Button(_aktifSekme == 4 ? $"● [5] Undo ({Plugin.VeriKoprusu.GeriAlGecmisi.Count}), Kanca & IL2CPP" : $"[5] Undo ({Plugin.VeriKoprusu.GeriAlGecmisi.Count}), Kanca & IL2CPP")) _aktifSekme = 4;
             GUILayout.EndHorizontal();
 
             GUILayout.Space(6);
@@ -222,7 +219,6 @@ namespace FM26AgenticEditor.UI
         {
             GUILayout.BeginHorizontal();
 
-            // Sol Sütun: Arama ve Oyuncu Listesi
             GUILayout.BeginVertical(GUILayout.Width(265));
             GUILayout.Label("İsim / Kulüp / Pozisyon / Forma No Ara:");
             _oyuncuArama = GUILayout.TextField(_oyuncuArama ?? "");
@@ -243,7 +239,6 @@ namespace FM26AgenticEditor.UI
 
             GUILayout.Space(10);
 
-            // Sağ Sütun: Masaüstü Röntgeni + Seçili Oyuncu Düzenleme Kartı
             GUILayout.BeginVertical();
             if (_seciliOyuncu == null)
             {
@@ -338,7 +333,6 @@ namespace FM26AgenticEditor.UI
 
         private void KulupVeSuperLigSekmesiCiz()
         {
-            // Üst Şerit: Tek Tıkla Türkiye Süper Lig Gerçekçilik Kalibrasyonu
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("🇹🇷 Tek Tıkla Türkiye Süper Lig Gerçekçilik & İtibar Kalibrasyonu Uygula (Avrupa İlk 8 + Yönetim Esnekliği)"))
             {
@@ -350,7 +344,6 @@ namespace FM26AgenticEditor.UI
             GUILayout.Space(4);
             GUILayout.BeginHorizontal();
 
-            // Sol Sütun: Kulüp Listesi
             GUILayout.BeginVertical(GUILayout.Width(260));
             GUILayout.Label("Kulüp / Lig Ara:");
             _kulupArama = GUILayout.TextField(_kulupArama ?? "");
@@ -370,7 +363,6 @@ namespace FM26AgenticEditor.UI
 
             GUILayout.Space(10);
 
-            // Sağ Sütun: Kulüp Finans, İtibar ve Yönetim Esnekliği Kartı
             GUILayout.BeginVertical();
             if (_seciliKulup == null)
             {
@@ -437,7 +429,7 @@ namespace FM26AgenticEditor.UI
             GUILayout.EndHorizontal();
         }
 
-        // ==================== SEKME 2: REHABİLİTASYON & MAÇ MOTORU ====================
+        // ==================== SEKME 2: REHABİLİTASYON, MAÇ MOTORU & PAKET ÜRETİCİ ====================
 
         private void RehabilitasyonSekmesiCiz()
         {
@@ -446,8 +438,8 @@ namespace FM26AgenticEditor.UI
 
             GUILayout.BeginHorizontal();
 
-            // Sol Sütun: Tıbbi Denge, Maç Motoru ve Ekonomi Yamaları
-            GUILayout.BeginVertical(GUILayout.Width(420));
+            // Sol Sütun: Canlı Simülasyon Yamaları
+            GUILayout.BeginVertical(GUILayout.Width(425));
             GUILayout.Label("=== 1. Tıbbi Denge & Mikro-Sakatlık Kalkanı ===");
             GUILayout.Label($"Küresel Sakatlık Olasılık Çarpanı: %{a.SakatlikFrekansiCarpaniYuzde} (Önerilen: %65-%75)");
             a.SakatlikFrekansiCarpaniYuzde = Mathf.RoundToInt(GUILayout.HorizontalSlider(a.SakatlikFrekansiCarpaniYuzde, 50f, 100f));
@@ -459,14 +451,14 @@ namespace FM26AgenticEditor.UI
                 r.TibbiDengeVeMikroSakatlikKalkaniniCalistir(Plugin.VeriKoprusu);
             }
 
-            GUILayout.Space(8);
+            GUILayout.Space(6);
             GUILayout.Label("=== 2. Maç Motoru, Çevre & Ergonomi Yamaları ===");
             a.SurekliYagmurDuzeltici = GUILayout.Toggle(a.SurekliYagmurDuzeltici, "Aralıksız yağmur hatasını lig coğrafyasına göre dengele (Weather Fix)");
             a.SantraSavunmaUyarici = GUILayout.Toggle(a.SantraSavunmaUyarici, "Santra vuruşu sonrası savunma uyuşukluğunu engelle");
             a.KlasikBoslukTusuYamasi = GUILayout.Toggle(a.KlasikBoslukTusuYamasi, "Klasik FM24 Boşluk (Space) tuşu ilerleme davranışını kullan");
             a.ArkaPlanSimulasyonHizlandirici = GUILayout.Toggle(a.ArkaPlanSimulasyonHizlandirici, "Oynanmayan arka plan/kadın liglerinin simülasyon yükünü azalt (Lite DB)");
 
-            GUILayout.Space(8);
+            GUILayout.Space(6);
             GUILayout.Label("=== 3. Transfer & Diyalog Mantığı ===");
             a.KullaniciVergisiDengeleyici = GUILayout.Toggle(a.KullaniciVergisiDengeleyici, "AI kulüplerinin 80-100M€ fahiş bonservis çarpanını (User Tax) dengele");
             a.IrrasyonelIsyanFiltresi = GUILayout.Toggle(a.IrrasyonelIsyanFiltresi, "Yeni transferlerin (<12 ay) Suudi Arabistan/transfer isyanını engelle");
@@ -480,27 +472,46 @@ namespace FM26AgenticEditor.UI
 
             GUILayout.Space(12);
 
-            // Sağ Sütun: Duran Top Forma Numarası Rehberi & AI Regen Yüz Eşleştirici
+            // Sağ Sütun: Duran Top Rehberi + Mod Paketi Üretici (Skin, Editor Data XML, Regen Yüz, CSV Tablo)
             GUILayout.BeginVertical();
             GUILayout.Label("=== 4. Duran Top Forma No & Hava Hakimiyeti Tablosu ===");
-            GUILayout.Label("(Duran top ekranında sadece forma numarası görünen oyuncular için rehber)");
-
-            _duranTopScroll = GUILayout.BeginScrollView(_duranTopScroll, GUILayout.Height(180));
+            _duranTopScroll = GUILayout.BeginScrollView(_duranTopScroll, GUILayout.Height(145));
             foreach (var o in Plugin.VeriKoprusu.Oyuncular.OrderByDescending(x => x.HavaHakimiyetiPuani))
             {
-                GUILayout.Label($"Forma #{o.FormaNumarasi} -> {o.AdSoyad} ({o.Pozisyon}) | Boy:{o.BoyCm}cm Zıp:{o.Ziplama} Kafa:{o.KafaVurusu} | Hava Puanı: {o.HavaHakimiyetiPuani}/100");
+                GUILayout.Label($"Forma #{o.FormaNumarasi} -> {o.AdSoyad} ({o.Pozisyon}) | Boy:{o.BoyCm}cm Zıp:{o.Ziplama} Kafa:{o.KafaVurusu} | Hava: {o.HavaHakimiyetiPuani}/100");
             }
             GUILayout.EndScrollView();
 
-            GUILayout.Space(8);
-            GUILayout.Label("=== 5. AI Regen (Newgen) Yüz Paketi Eşleştirici (config.xml) ===");
-            if (GUILayout.Button("🖼️ Newgen Oyuncular İçin AI Yüz Paketi config.xml Üret"))
+            GUILayout.Space(6);
+            GUILayout.Label("=== 5. Harici Mod & Tema Paketi Üretici (Skin / XML / Regen / CSV) ===");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("🎨 Antrasit Skin Üret"))
             {
-                _regenXmlOnizleme = r.AiNewgenYuzConfigOlustur(Plugin.VeriKoprusu);
+                _paketOnizleme = Plugin.PaketUretici.MasaustuAntrasitSkinPaketiUret();
+                Plugin.VeriKoprusu.SonBilgiMesaji = Plugin.PaketUretici.SonUretimRaporu;
             }
-            GUILayout.TextArea(string.IsNullOrEmpty(_regenXmlOnizleme)
-                ? "Butona bastığınızda oyundaki Newgen (3D Regen) oyuncuların ID ve etnik bölgelerine göre FM26 graphics/faces config.xml eşleştirmesi üretilir."
-                : _regenXmlOnizleme, GUILayout.Height(140));
+            if (GUILayout.Button("📦 SüperLig+LiteDB XML"))
+            {
+                _paketOnizleme = Plugin.PaketUretici.SuperLigVePerformansEditorDataUret(Plugin.VeriKoprusu);
+                Plugin.VeriKoprusu.SonBilgiMesaji = Plugin.PaketUretici.SonUretimRaporu;
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("🖼️ AI Regen config.xml"))
+            {
+                _paketOnizleme = r.AiNewgenYuzConfigOlustur(Plugin.VeriKoprusu);
+            }
+            if (GUILayout.Button("📊 0ms Kadro CSV Tablo"))
+            {
+                _paketOnizleme = Plugin.PaketUretici.HizliKadroKiyaslamaTablosuUret(Plugin.VeriKoprusu);
+                Plugin.VeriKoprusu.SonBilgiMesaji = Plugin.PaketUretici.SonUretimRaporu;
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.TextArea(string.IsNullOrEmpty(_paketOnizleme)
+                ? "Yukarıdaki butonlarla: (1) FM24 Antrasit/Lacivert Masaüstü Skini, (2) Süper Lig + TFF + LiteDB Editor Data XML, (3) AI Regen Yüz config.xml ve (4) Masaüstü Kadro Röntgen CSV tablosunu Belgeler/Sports Interactive klasörüne tek tıkla üretebilirsiniz."
+                : _paketOnizleme, GUILayout.Height(150));
             GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();
@@ -552,14 +563,37 @@ namespace FM26AgenticEditor.UI
             GUILayout.TextArea(ajan.SonRapor ?? "", GUILayout.Height(280));
         }
 
-        // ==================== SEKME 4: GERİ AL (UNDO) & CANLI IL2CPP KEŞİF ====================
+        // ==================== SEKME 4: GERİ AL (UNDO), HARMONYX KANCA & CANLI IL2CPP ====================
 
         private void UndoVeIl2CppSekmesiCiz()
         {
             GUILayout.BeginHorizontal();
 
-            // Sol: Geri Al (Undo) Geçmişi
-            GUILayout.BeginVertical(GUILayout.Width(400));
+            // Sol: Geri Al (Undo) Geçmişi ve Dinamik HarmonyX Kancaları
+            GUILayout.BeginVertical(GUILayout.Width(430));
+            GUILayout.Label("=== Dinamik HarmonyX Maç & Ekonomi Kancaları ===");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("🔌 IL2CPP Kancalarını Bağla"))
+            {
+                Plugin.YamaYoneticisi.DinamikKancalariTaraVeBagla();
+                Plugin.VeriKoprusu.SonBilgiMesaji = Plugin.YamaYoneticisi.SonDurumMesaji;
+            }
+            if (GUILayout.Button("🧪 Kanca Simülasyon Testi"))
+            {
+                Plugin.YamaYoneticisi.KancaSimulasyonTestiCalistir();
+                Plugin.VeriKoprusu.SonBilgiMesaji = Plugin.YamaYoneticisi.SonDurumMesaji;
+            }
+            GUILayout.EndHorizontal();
+
+            if (Plugin.YamaYoneticisi != null)
+            {
+                foreach (var k in Plugin.YamaYoneticisi.Kancalar)
+                {
+                    GUILayout.Label($"• [{k.Kategori}] {k.KancaAdi} (Tetik:{k.TetiklenmeSayisi}) -> {k.SonIslemKaydi}");
+                }
+            }
+
+            GUILayout.Space(6);
             GUILayout.Label($"=== Değişiklik Geçmişi ({Plugin.VeriKoprusu.GeriAlGecmisi.Count} kayıt) ===");
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("↩ Son İşlemi Geri Al"))
@@ -576,7 +610,7 @@ namespace FM26AgenticEditor.UI
             }
             GUILayout.EndHorizontal();
 
-            _undoScroll = GUILayout.BeginScrollView(_undoScroll, GUILayout.Width(395), GUILayout.Height(390));
+            _undoScroll = GUILayout.BeginScrollView(_undoScroll, GUILayout.Width(425), GUILayout.Height(185));
             foreach (var kayit in Plugin.VeriKoprusu.GeriAlGecmisi)
             {
                 GUILayout.Label(kayit.ToString());
