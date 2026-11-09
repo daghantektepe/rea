@@ -1,0 +1,7 @@
+# .NET derleme çıktıları ve IDE geçici dosyaları
+bin/
+obj/
+*.user
+*.suo
+.vs/
+

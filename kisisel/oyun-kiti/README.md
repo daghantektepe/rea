@@ -7,6 +7,7 @@ Tek oyunculu Unity oyunları için iki başlangıç şablonu. Bunları Claude Co
 | ----------------------- | -------------------------------------------------------------------- | -------------------- |
 | `unity-bepinex-mono/`   | Oyun klasöründe `*_Data/Managed/Assembly-CSharp.dll` var             | BepInEx 5 + HarmonyX |
 | `unity-bepinex-il2cpp/` | `GameAssembly.dll` ve `il2cpp_data/Metadata/global-metadata.dat` var | BepInEx 6 IL2CPP     |
+| `fm26-agentic-editor/`  | **Football Manager 26 (IL2CPP)** için 4 sekmeli FMRTE + Agentic FM   | BepInEx 6 IL2CPP     |
 
 Hangisi olduğunu bilmiyorsanız Claude Code'a şunu yazın:
 `/oyun-mod "<oyun klasörü>" hangi motor, mod için nereden başlamalıyım?`

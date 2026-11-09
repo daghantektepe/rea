@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    FM26 In-Game Editor (FMRTE Alternatifi) & Agentic FM Eklentisi (BepInEx 6 IL2CPP)
+    
+    Derleme (Oyun henüz kurulu değilken doğrulama):
+      dotnet build -c Release
+    
+    Derleme (FM26 ve BepInEx 6 IL2CPP kurulduktan sonra):
+      dotnet build -c Release -p:OyunKlasoru="C:\Program Files (x86)\Steam\steamapps\common\Football Manager 26"
+    
+    Kurulum:
+      bin/Release/net6.0/FM26AgenticEditor.dll dosyasını <FM26>/BepInEx/plugins/ klasörüne kopyalayın.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>FM26AgenticEditor</AssemblyName>
+    <RootNamespace>FM26AgenticEditor</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <NoWarn>$(NoWarn);NU1603</NoWarn>
+    <OyunKlasoru Condition="'$(OyunKlasoru)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Football Manager 26</OyunKlasoru>
+    <InteropKlasoru>$(OyunKlasoru)\BepInEx\interop</InteropKlasoru>
+    <InteropVarMi>false</InteropVarMi>
+    <InteropVarMi Condition="Exists('$(InteropKlasoru)\UnityEngine.CoreModule.dll')">true</InteropVarMi>
+    <DefineConstants Condition="'$(InteropVarMi)' == 'true'">$(DefineConstants);FM26_INTEROP_VAR</DefineConstants>
+    <RestoreAdditionalProjectSources>
+      https://api.nuget.org/v3/index.json;
+      https://nuget.bepinex.dev/v3/index.json
+    </RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.*" IncludeAssets="compile" />
+  </ItemGroup>
+
+  <!-- Gerçek FM26 BepInEx interop DLL'leri mevcutsa onları referans al -->
+  <ItemGroup Condition="'$(InteropVarMi)' == 'true'">
+    <Reference Include="$(InteropKlasoru)\*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Oyun henüz kurulu değilse ortak IL2CPP Unity stub'larını kullanarak derle -->
+  <ItemGroup Condition="'$(InteropVarMi)' != 'true'">
+    <Compile Include="..\unity-bepinex-il2cpp\InteropStubs\**\*.cs" LinkBase="InteropStubs" />
+  </ItemGroup>
+</Project>
+

@@ -3,7 +3,8 @@
     BepInEx 6 (Unity IL2CPP) eklenti şablonu.
     Ön koşul: Oyuna BepInEx 6 IL2CPP kurun ve oyunu bir kez çalıştırın. BepInEx,
     <Oyun>/BepInEx/interop/ altına oyunun "interop" DLL'lerini üretir; bu proje onları kullanır.
-    Derleme:  dotnet build -c Release -p:OyunKlasoru="C:\Steam\steamapps\common\OyunAdi"
+    Oyun henüz kurulu değilken de (InteropStubs sayesinde) doğrudan derlenip doğrulanabilir.
+    Derleme:  dotnet build -c Release -p:OyunKlasoru="C:\Steam\steamapps\common\Football Manager 26"
     Çıktı:    bin/Release/net6.0/OrnekIl2cppMod.dll  ->  <Oyun>/BepInEx/plugins/
   -->
   <PropertyGroup>
@@ -11,8 +12,13 @@
     <AssemblyName>OrnekIl2cppMod</AssemblyName>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
+    <!-- BepInEx bleeding-edge paketlerinin transitif Cpp2IL sürüm uyarısını sustur -->
+    <NoWarn>$(NoWarn);NU1603</NoWarn>
     <OyunKlasoru Condition="'$(OyunKlasoru)' == ''">$(MSBuildProjectDirectory)\..\oyun</OyunKlasoru>
     <InteropKlasoru>$(OyunKlasoru)\BepInEx\interop</InteropKlasoru>
+    <InteropVarMi>false</InteropVarMi>
+    <InteropVarMi Condition="Exists('$(InteropKlasoru)\UnityEngine.CoreModule.dll')">true</InteropVarMi>
+    <DefineConstants Condition="'$(InteropVarMi)' == 'true'">$(DefineConstants);OYUN_INTEROP_VAR</DefineConstants>
     <RestoreAdditionalProjectSources>
       https://api.nuget.org/v3/index.json;
       https://nuget.bepinex.dev/v3/index.json
@@ -23,10 +29,17 @@
     <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.*" IncludeAssets="compile" />
   </ItemGroup>
 
-  <!-- Oyunun interop DLL'leri: hepsine referans verilir, hiçbiri çıktıya kopyalanmaz. -->
-  <ItemGroup>
+  <!-- Oyunun gerçek interop DLL'leri mevcutsa hepsine referans verilir, çıktıya kopyalanmaz. -->
+  <ItemGroup Condition="'$(InteropVarMi)' == 'true'">
+    <Compile Remove="InteropStubs\**" />
     <Reference Include="$(InteropKlasoru)\*.dll">
       <Private>false</Private>
     </Reference>
+  </ItemGroup>
+
+  <!-- Oyun henüz kurulu değilse InteropStubs devreye girer; böylece şablon hatasız derlenir. -->
+  <ItemGroup Condition="'$(InteropVarMi)' != 'true'">
+    <Compile Remove="InteropStubs\**" />
+    <Compile Include="InteropStubs\**\*.cs" />
   </ItemGroup>
 </Project>
