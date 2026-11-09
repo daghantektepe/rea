@@ -14,8 +14,8 @@ namespace FM26AgenticEditor
     public class Plugin : BasePlugin
     {
         public const string Guid = "tr.kisisel.fm26agenticeditor";
-        public const string Ad = "FM26 In-Game Editor, Rehabilitasyon & Agentic FM";
-        public const string Surum = "0.4.0";
+        public const string Ad = "FM26 In-Game Editor, Yaşayan Dünya & Agentic FM";
+        public const string Surum = "0.5.0";
 
         internal static ManualLogSource Gunluk;
         internal static ConfigEntry<KeyCode> PanelKisayolu;
@@ -27,6 +27,7 @@ namespace FM26AgenticEditor
 
         internal static FmVeriKoprusu VeriKoprusu;
         internal static RehabilitasyonServisi Rehabilitasyon;
+        internal static YasayanDunyaVeAiEvrimServisi YasayanDunya;
         internal static AgenticFmServisi AgentServisi;
         internal static Fm26HarmonyYamaYoneticisi YamaYoneticisi;
         internal static PaketVeTemaUreticiServisi PaketUretici;
@@ -39,7 +40,7 @@ namespace FM26AgenticEditor
             PanelKisayolu = Config.Bind("Genel", "PanelKisayolu", KeyCode.F8,
                 "FM26 oyun içi editör ve Agentic FM panelini açıp kapatan kısayol tuşu.");
             RontgenHudKisayolu = Config.Bind("Genel", "RontgenHudKisayolu", KeyCode.F9,
-                "Masaüstü Oyuncu Röntgeni (Boy/Kilo/CA-PA/Sakatlık Eğilimi) üst bilgi çubuğunu açıp kapatan tuş.");
+                "Masaüstü Oyuncu Röntgeni (Boy/Kilo/CA-PA/Tutarlılık/Sakatlık Eğilimi) üst bilgi çubuğunu açıp kapatan tuş.");
             SakatlikCarpaniYuzde = Config.Bind("Rehabilitasyon", "SakatlikCarpaniYuzde", 68,
                 "Küresel sakatlık olasılık çarpanı (%50-%100). %68 değeri sakatlıkları %32 azaltır.");
 
@@ -53,6 +54,7 @@ namespace FM26AgenticEditor
             VeriKoprusu = new FmVeriKoprusu();
             Rehabilitasyon = new RehabilitasyonServisi();
             Rehabilitasyon.Ayarlar.SakatlikFrekansiCarpaniYuzde = Mathf.Clamp(SakatlikCarpaniYuzde.Value, 50, 100);
+            YasayanDunya = new YasayanDunyaVeAiEvrimServisi();
             PaketUretici = new PaketVeTemaUreticiServisi();
 
             AgentServisi = new AgenticFmServisi

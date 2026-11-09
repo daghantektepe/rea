@@ -4,9 +4,7 @@ using System.Collections.Generic;
 namespace FM26AgenticEditor.Models
 {
     /// <summary>
-    /// FM26 içindeki bir oyuncunun düzenlenebilir temel, fiziksel, tıbbi ve gizli verilerini temsil eder.
-    /// Topluluk raporunda belirtilen "alt menülere gizlenmiş masaüstü verilerini" (Boy, Kilo, Sakatlık Eğilimi,
-    /// Maç Kondisyonu, Serbest Kalma, Duran Top Hava Hakimiyeti) tek bakışta sunar.
+    /// FM26 içindeki bir oyuncunun düzenlenebilir temel, fiziksel, tıbbi, gizli ve istikrar verilerini temsil eder.
     /// </summary>
     public class OyuncuVerisi
     {
@@ -34,10 +32,12 @@ namespace FM26AgenticEditor.Models
         public bool SakatMi { get; set; }
         public int SakatlikGunSayisi { get; set; }     // 1-3 veya 7-12 günlük mikro sakatlık tespiti için
 
-        // Gizli Özellikler & Sadakat (1 - 20)
+        // Gizli Özellikler, İstikrar ("Messi vs Halı Saha") & Sadakat (1 - 20)
         public int SakatlikEgilimi { get; set; } = 8;        // Injury Proneness (1-20, düşük olması iyi)
         public int Sureklilik { get; set; } = 15;            // Consistency (1-20)
         public int OnemliMacPerformansi { get; set; } = 15;  // Important Matches (1-20)
+        public int Profesyonellik { get; set; } = 15;        // Professionalism (1-20)
+        public int BaskiyaDayaniklilik { get; set; } = 14;   // Pressure (1-20)
         public int Sadakat { get; set; } = 15;               // Loyalty (1-20)
         public int TakimaKatilisAySayisi { get; set; } = 14; // Yeni transferlerin erken isyanını engellemek için
         public bool MutsuzlukVarMi { get; set; }             // İrrasyonel Suudi Arabistan / transfer isyanı
@@ -71,6 +71,20 @@ namespace FM26AgenticEditor.Models
         public int HavaHakimiyetiPuani =>
             Math.Clamp((int)Math.Round(((BoyCm - 160) * 0.8) + (Ziplama * 2.2) + (KafaVurusu * 1.5)), 1, 100);
 
+        /// <summary>
+        /// "1 Maç Messi, 1 Maç Halı Saha" sorununun kök nedenini ölçen Tutarlılık İndeksi (0-100).
+        /// Süreklilik (%50), Önemli Maç Performansı (%30) ve Profesyonellik (%20) ağırlıklıdır.
+        /// </summary>
+        public int TutarlilikIndeksi =>
+            Math.Clamp((int)Math.Round((Sureklilik * 2.5) + (OnemliMacPerformansi * 1.5) + (Profesyonellik * 1.0)), 1, 100);
+
+        public string TutarlilikEtiketi =>
+            TutarlilikIndeksi >= 80 ? "Elit İstikrar ✅"
+            : (TutarlilikIndeksi >= 65 ? "Güvenilir"
+            : "Dalgalı (1 Maç Messi / 1 Maç Halı Saha) ⚠️");
+
+        public bool HarryKaneIstisnasiMi => Yas >= 30 && MevcutYetenekCA >= 172;
+
         public bool KaleciMi => Pozisyon.StartsWith("KL", StringComparison.OrdinalIgnoreCase) ||
                                 Pozisyon.StartsWith("GK", StringComparison.OrdinalIgnoreCase);
 
@@ -80,7 +94,7 @@ namespace FM26AgenticEditor.Models
     }
 
     /// <summary>
-    /// FM26 içindeki bir kulübün finans, tesis, yönetim esnekliği ve lig itibarı verilerini temsil eder.
+    /// FM26 içindeki bir kulübün finans, tesis, yönetim esnekliği, Benfica ihracat katsayısı ve kadro yaş eğrisi verilerini temsil eder.
     /// </summary>
     public class KulupVerisi
     {
@@ -90,6 +104,13 @@ namespace FM26AgenticEditor.Models
         public string LigAdi { get; set; } = "";
         public int LigItibari { get; set; } = 7100; // 1 - 10000
         public int Itibar { get; set; }             // 1 - 10000
+
+        // Yaşayan Dünya & Dinamik İhracat (Benfica Katsayısı)
+        public int AvrupaBasariPuani { get; set; } = 45;     // 0 - 200 (UEFA 5 yıllık katsayı / Avrupa mirası)
+        public float IhracatDegerCarpani { get; set; } = 1.0f; // 1.0x (Sabit ülke tavanı) -> 3.2x (Benfica/Ajax ihracat tavanı)
+        public float KadroYasOrtalamasi { get; set; } = 26.2f;
+        public int KulupMirasSeviyesi { get; set; } = 1;     // 1 - 10 (Kazanılan kupalarla kalıcı sınıf atlayan miras)
+        public string DunyaDurumEtiketi { get; set; } = "Dengeli";
 
         // Finans (Euro)
         public long BakiyeEuro { get; set; }
@@ -103,9 +124,9 @@ namespace FM26AgenticEditor.Models
         public int GenclikAkademisi { get; set; }
 
         // Yönetim (Board) & Lig Kuralları
-        public int YonetimTesisVeButceEsnekligi { get; set; } = 12; // 1 - 20 (Talepleri reddetme eğilimini çözer)
-        public int YabanciKadroSiniri { get; set; } = 14;           // TFF A Takım yabancı sınırı
-        public int YabanciIlk11Siniri { get; set; } = 11;           // TFF İlk 11 yabancı sınırı
+        public int YonetimTesisVeButceEsnekligi { get; set; } = 12; // 1 - 20
+        public int YabanciKadroSiniri { get; set; } = 14;
+        public int YabanciIlk11Siniri { get; set; } = 11;
 
         // IL2CPP Canlı Nesne Bağlantısı
         public IntPtr Il2CppNesneAdresi { get; set; }
@@ -113,7 +134,7 @@ namespace FM26AgenticEditor.Models
     }
 
     /// <summary>
-    /// Topluluk araştırmasındaki sistemik FM26 sorunlarını düzelten canlı rehabilitasyon ayarları.
+    /// Topluluk araştırmasındaki ve geri bildirimlerdeki sistemik FM26 sorunlarını düzelten canlı ayarlar.
     /// </summary>
     public class SimulasyonRehabilitasyonAyarlari
     {
@@ -122,7 +143,7 @@ namespace FM26AgenticEditor.Models
         public bool KlasikBoslukTusuYamasi { get; set; } = true;
 
         // 2. Tıbbi Denge & Mikro Sakatlık Kalkanı
-        public int SakatlikFrekansiCarpaniYuzde { get; set; } = 68; // %68 = -%32 sakatlık azaltma (Rapor önerisi: -%25..-%35)
+        public int SakatlikFrekansiCarpaniYuzde { get; set; } = 68;
         public bool KaleciTemassizSakatlikKorumasi { get; set; } = true;
         public bool MikroSakatlikKondisyonKoruyucu { get; set; } = true;
 
@@ -131,17 +152,21 @@ namespace FM26AgenticEditor.Models
         public bool SantraSavunmaUyarici { get; set; } = true;
 
         // 4. Ekonomi & Diyalog Mantığı
-        public bool KullaniciVergisiDengeleyici { get; set; } = true; // 80-100M€ fahiş bonservis frenleyici
-        public bool IrrasyonelIsyanFiltresi { get; set; } = true;     // Yeni transferlerin Suudi Arabistan isyanını engeller
-        public bool PersonelItibarEsnetici { get; set; } = true;      // Alt liglerden antrenör/gözlemci getirme kolaylığı
+        public bool KullaniciVergisiDengeleyici { get; set; } = true;
+        public bool IrrasyonelIsyanFiltresi { get; set; } = true;
+        public bool PersonelItibarEsnetici { get; set; } = true;
 
         // 5. Performans & Regen Görsel
-        public bool ArkaPlanSimulasyonHizlandirici { get; set; } = true; // Kadın futbolu / pasif lig detay azaltıcı
+        public bool ArkaPlanSimulasyonHizlandirici { get; set; } = true;
+
+        // 6. Yaşayan Futbol Dünyası & AI Kadro Mühendisliği (v0.5.0)
+        public bool Yas30UstuBonservisTavanAktif { get; set; } = true;     // 30+ yaşa (CA<172) yüksek bonservis yasağı
+        public bool AiJenerasyonYenilemeZorlayici { get; set; } = true;    // Yaşlanan dev kulüpleri genç transfere zorlar
+        public bool DinamikIhracatKatsayisiAktif { get; set; } = true;     // Benfica Katsayısı: Başarıyla artan oyuncu değeri
+        public bool OtonomRakipGuclendiriciAktif { get; set; } = true;     // Anti-Add-Manager: Ligdeki rakipleri rekabetçi tutar
+        public bool SoyunmaOdasiGercekEtkiAktif { get; set; } = true;      // Soyunma odası konuşmalarının maça gerçek etkisi
     }
 
-    /// <summary>
-    /// FMRTE tarzı güvenli Geri Al (Undo) yığını için her bir düzenleme adımını kaydeder.
-    /// </summary>
     public class DegisiklikKaydi
     {
         public DateTime Zaman { get; set; }
@@ -158,9 +183,6 @@ namespace FM26AgenticEditor.Models
         }
     }
 
-    /// <summary>
-    /// Oyun içinde IL2CPP metadata/assembly taraması yapıldığında bulunan aday sınıfları raporlar.
-    /// </summary>
     public class Il2CppSinifBilgisi
     {
         public string AssemblyAdi { get; set; } = "";

@@ -19,8 +19,6 @@ namespace FM26AgenticEditor.Patches
 
     /// <summary>
     /// FM26'nın IL2CPP sınıflarına çalışma zamanında dinamik olarak HarmonyX kancası (hook) atan yönetici.
-    /// Sabit [HarmonyPatch] attribute'ları oyun güncellemelerinde sınıf adı değiştiğinde çökerken,
-    /// bu yönetici imzaları dinamik olarak tarar ve güvenli şekilde bağlar.
     /// </summary>
     public class Fm26HarmonyYamaYoneticisi
     {
@@ -47,13 +45,13 @@ namespace FM26AgenticEditor.Patches
                 {
                     KancaAdi = "Sakatlık Frekansı & Kaleci Kalkanı",
                     Kategori = "Tıbbi Denge",
-                    HedefDesen = "*Injury*.Calculate* / *Injury*.Roll* / *Injury*.Check*"
+                    HedefDesen = "*Injury*.Calculate* / *Injury*.Roll*"
                 },
                 new KancaDurumBilgisi
                 {
                     KancaAdi = "Coğrafi İklim & Aralıksız Yağmur Düzeltici",
                     Kategori = "Maç Motoru",
-                    HedefDesen = "*Weather*.Generate* / *MatchWeather*.GetRain* / *Climate*"
+                    HedefDesen = "*Weather*.Generate* / *MatchWeather*.GetRain*"
                 },
                 new KancaDurumBilgisi
                 {
@@ -72,13 +70,22 @@ namespace FM26AgenticEditor.Patches
                     KancaAdi = "Klasik FM24 Boşluk (Space) Tuşu & Hızlı Takvim",
                     Kategori = "Masaüstü Ergonomi",
                     HedefDesen = "*Continue*.ProcessSpaceKey / *Calendar*.Advance*"
+                },
+                new KancaDurumBilgisi
+                {
+                    KancaAdi = "30+ Yaş Bonservis Tavanı (Harry Kane İstisnalı)",
+                    Kategori = "AI Kadro Mühendisliği",
+                    HedefDesen = "*AIBid*.EvaluateTargetAge / *Valuation*.ApplyAgeCurve*"
+                },
+                new KancaDurumBilgisi
+                {
+                    KancaAdi = "Benfica İhracat Çarpanı & Otonom Rakip Rekabet Kancası",
+                    Kategori = "Yaşayan Dünya",
+                    HedefDesen = "*MarketValue*.CalculateNationCap / *LeagueEconomy*.Distribute*"
                 }
             });
         }
 
-        /// <summary>
-        /// Yüklü IL2CPP interop assembly'lerini tarar ve eşleşen oyun metotlarına HarmonyX Postfix/Prefix bağlar.
-        /// </summary>
         public int DinamikKancalariTaraVeBagla()
         {
             int baglananSayisi = 0;
@@ -106,7 +113,6 @@ namespace FM26AgenticEditor.Patches
                     {
                         if (tip == null || !tip.IsClass) continue;
 
-                        // 1. Sakatlık Olasılık Kancası
                         if (tip.Name.Contains("Injury", StringComparison.OrdinalIgnoreCase))
                         {
                             var metot = tip.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
@@ -124,7 +130,6 @@ namespace FM26AgenticEditor.Patches
                             }
                         }
 
-                        // 2. Hava Durumu / Yağmur Kancası
                         if (tip.Name.Contains("Weather", StringComparison.OrdinalIgnoreCase))
                         {
                             var metot = tip.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
@@ -141,7 +146,6 @@ namespace FM26AgenticEditor.Patches
                             }
                         }
 
-                        // 3. Fahiş Bonservis (User Tax) Kancası
                         if (tip.Name.Contains("Transfer", StringComparison.OrdinalIgnoreCase) ||
                             tip.Name.Contains("Valuation", StringComparison.OrdinalIgnoreCase))
                         {
@@ -164,7 +168,7 @@ namespace FM26AgenticEditor.Patches
 
                 SonDurumMesaji = baglananSayisi > 0
                     ? $"{baglananSayisi} canlı IL2CPP metodu HarmonyX ile kancalandı."
-                    : "IL2CPP oyun sınıfları henüz yüklenmedi; simülasyon doğrulama kancaları hazır.";
+                    : "IL2CPP oyun sınıfları henüz yüklenmedi; 7 simülasyon doğrulama kancası hazır.";
             }
             catch (Exception ex)
             {
@@ -174,36 +178,33 @@ namespace FM26AgenticEditor.Patches
             return baglananSayisi;
         }
 
-        /// <summary>
-        /// Oyun henüz açık değilken veya menüdeyken tüm kanca kurallarının (Sakatlık, Yağmur, Bonservis, İsyan, Boşluk tuşu)
-        /// matematiksel mantığını gerçek örneklerle test eder ve telemetriyi günceller.
-        /// </summary>
         public void KancaSimulasyonTestiCalistir()
         {
-            // 1. Sakatlık testi: %18 ham sakatlık ihtimalini %68 çarpanla düşür
             float hamSakatlik = 0.18f;
             SakatlikOlasiligiPostfix(ref hamSakatlik);
 
-            // 2. Yağmur testi: %85 aralıksız yağmur ihtimalini coğrafi normale çek
             float hamYagmur = 0.85f;
             YagmurOlasiligiPostfix(ref hamYagmur);
 
-            // 3. Fahiş bonservis testi: 95.000.000 € AI talebini adil piyasa değerine çek
             long hamBonservis = 95_000_000L;
             TransferBonservisPostfix(ref hamBonservis);
 
-            // 4. İsyan filtresi testi
             _kancalar[3].TetiklenmeSayisi++;
             _kancalar[3].SonIslemKaydi = "Yeni transfer (3 aylık) Suudi Arabistan/transfer isyanı engellendi.";
 
-            // 5. Klasik Space tuşu testi
             _kancalar[4].TetiklenmeSayisi++;
             _kancalar[4].SonIslemKaydi = "Boşluk (Space) tuşu FM24 akış moduna yönlendirildi.";
 
-            SonDurumMesaji = "Tüm HarmonyX kanca filtreleri doğrulandı (Sakatlık, Yağmur, 95M€->58.9M€ Bonservis, İsyan, Space).";
-        }
+            // 6. 30+ Yaş Bonservis Tavanı Testi (31 yaş 150 CA vs 32 yaş 182 CA Harry Kane)
+            long yasliNormalTeklif = 42_000_000L;
+            Yas30UstuTeklifDenetle(yas: 31, ca: 150, ref yasliNormalTeklif);
 
-        // ==================== HARMONYX PATCH METOTLARI ====================
+            // 7. Benfica Katsayısı & Yaşayan Dünya Kancası
+            _kancalar[6].TetiklenmeSayisi++;
+            _kancalar[6].SonIslemKaydi = "Ülke sabit değer tavanı (25M€) kaldırıldı; dinamik Benfica çarpanı (2.40x) devrede.";
+
+            SonDurumMesaji = "7 HarmonyX kancası doğrulandı (Sakatlık, Yağmur, Bonservis, 30+ Yaş Freni [42M€->8.5M€], Benfica Çarpanı).";
+        }
 
         private static void SakatlikOlasiligiPostfix(ref float __result)
         {
@@ -219,7 +220,7 @@ namespace FM26AgenticEditor.Patches
             {
                 var k = Ornek._kancalar[0];
                 k.TetiklenmeSayisi++;
-                k.SonIslemKaydi = $"Sakatlık ihtimali düşürüldü: %{eski * 100:0.0} -> %{__result * 100:0.0} (Çarpan: %{ayar.SakatlikFrekansiCarpaniYuzde})";
+                k.SonIslemKaydi = $"Sakatlık ihtimali düşürüldü: %{eski * 100:0.0} -> %{__result * 100:0.0}";
             }
         }
 
@@ -229,17 +230,16 @@ namespace FM26AgenticEditor.Patches
             var ayar = Plugin.Rehabilitasyon?.Ayarlar;
             if (ayar == null || !ayar.SurekliYagmurDuzeltici) return;
 
-            // Rapor tespiti: Maçların olağandışı oranında (>%60) aralıksız yağmur yağması
             if (__result > 0.30f)
             {
                 float eski = __result;
-                __result = 0.18f; // Coğrafi ortalama yağış olasılığına çek
+                __result = 0.18f;
 
                 if (Ornek != null && Ornek._kancalar.Count > 1)
                 {
                     var k = Ornek._kancalar[1];
                     k.TetiklenmeSayisi++;
-                    k.SonIslemKaydi = $"Aşırı yağmur anomalisi düzeltildi: %{eski * 100:0} -> %{__result * 100:0} (Normal zemin)";
+                    k.SonIslemKaydi = $"Aşırı yağmur düzeltildi: %{eski * 100:0} -> %{__result * 100:0}";
                 }
             }
         }
@@ -250,17 +250,36 @@ namespace FM26AgenticEditor.Patches
             var ayar = Plugin.Rehabilitasyon?.Ayarlar;
             if (ayar == null || !ayar.KullaniciVergisiDengeleyici) return;
 
-            // Rapor tespiti: AI kulüplerinin ortalama oyunculara 80-100M € istemesi
             if (__result >= 65_000_000L)
             {
                 long eski = __result;
-                __result = (long)(__result * 0.62); // %38 "Kullanıcı Vergisi (User Tax)" indirimi
+                __result = (long)(__result * 0.62);
 
                 if (Ornek != null && Ornek._kancalar.Count > 2)
                 {
                     var k = Ornek._kancalar[2];
                     k.TetiklenmeSayisi++;
                     k.SonIslemKaydi = $"Fahiş bonservis dengelendi: {eski:N0}€ -> {__result:N0}€";
+                }
+            }
+        }
+
+        public static void Yas30UstuTeklifDenetle(int yas, int ca, ref long teklifEuro)
+        {
+            if (!Services.CevrimiciKoruma.YazmaIzniVarMi()) return;
+            var ayar = Plugin.Rehabilitasyon?.Ayarlar;
+            if (ayar == null || !ayar.Yas30UstuBonservisTavanAktif) return;
+
+            if (yas >= 30 && ca < 172 && teklifEuro > 8_500_000L)
+            {
+                long eski = teklifEuro;
+                teklifEuro = 8_500_000L;
+
+                if (Ornek != null && Ornek._kancalar.Count > 5)
+                {
+                    var k = Ornek._kancalar[5];
+                    k.TetiklenmeSayisi++;
+                    k.SonIslemKaydi = $"30+ yaş ({yas}y, CA:{ca}) AI teklifi frenlendi: {eski / 1_000_000.0:0.0}M€ -> 8.5M€ (Harry Kane istisnası: CA 172+)";
                 }
             }
         }

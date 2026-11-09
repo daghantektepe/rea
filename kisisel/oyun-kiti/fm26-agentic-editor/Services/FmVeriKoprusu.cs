@@ -30,6 +30,13 @@ namespace FM26AgenticEditor.Services
             OrnekVerileriYukle();
         }
 
+        public void YeniKulupEkle(KulupVerisi kulup)
+        {
+            if (kulup == null) return;
+            if (_kulupler.All(k => k.Id != kulup.Id))
+                _kulupler.Add(kulup);
+        }
+
         public void VerileriYenile()
         {
             int bulunanCanli = CanliIl2CppNesneleriniBagla();
@@ -323,15 +330,8 @@ namespace FM26AgenticEditor.Services
                         continue;
 
                     Type[] tipler;
-                    try
-                    {
-                        tipler = asm.GetTypes();
-                    }
-                    catch (ReflectionTypeLoadException ex)
-                    {
-                        tipler = ex.Types;
-                    }
-
+                    try { tipler = asm.GetTypes(); }
+                    catch (ReflectionTypeLoadException ex) { tipler = ex.Types; }
                     if (tipler == null) continue;
 
                     foreach (var tip in tipler)
@@ -429,7 +429,7 @@ namespace FM26AgenticEditor.Services
                     Yas = 21, Uyruk = "Türkiye", BoyCm = 175, KiloKg = 70, TercihEdilenAyak = "Sol",
                     MevcutYetenekCA = 158, PotansiyelYetenekPA = 185,
                     Kondisyon = 94, MacKondisyonu = 92, Moral = 18, SakatMi = false, SakatlikGunSayisi = 0,
-                    SakatlikEgilimi = 9, Sureklilik = 16, OnemliMacPerformansi = 17, Sadakat = 16, TakimaKatilisAySayisi = 28,
+                    SakatlikEgilimi = 9, Sureklilik = 16, OnemliMacPerformansi = 17, Profesyonellik = 18, Sadakat = 16, TakimaKatilisAySayisi = 28,
                     HaftalikMaasEuro = 110_000, SozlesmeBitisYili = 2029, PiyasaDegeriEuro = 75_000_000, SerbestKalmaBedeliEuro = 0,
                     Bitiricilik = 15, Pas = 17, Teknik = 18, KararAlma = 15, Vizyon = 18, Hiz = 14, Dayaniklilik = 14,
                     Ziplama = 8, KafaVurusu = 9, NewgenMi = false, EtnikBolgeKodu = "MED"
@@ -440,7 +440,7 @@ namespace FM26AgenticEditor.Services
                     Yas = 21, Uyruk = "Türkiye", BoyCm = 187, KiloKg = 77, TercihEdilenAyak = "Her İkisi",
                     MevcutYetenekCA = 154, PotansiyelYetenekPA = 182,
                     Kondisyon = 91, MacKondisyonu = 95, Moral = 17, SakatMi = false, SakatlikGunSayisi = 0,
-                    SakatlikEgilimi = 7, Sureklilik = 15, OnemliMacPerformansi = 16, Sadakat = 15, TakimaKatilisAySayisi = 30,
+                    SakatlikEgilimi = 7, Sureklilik = 15, OnemliMacPerformansi = 16, Profesyonellik = 17, Sadakat = 15, TakimaKatilisAySayisi = 30,
                     HaftalikMaasEuro = 85_000, SozlesmeBitisYili = 2029, PiyasaDegeriEuro = 65_000_000, SerbestKalmaBedeliEuro = 80_000_000,
                     Bitiricilik = 15, Pas = 15, Teknik = 17, KararAlma = 14, Vizyon = 15, Hiz = 16, Dayaniklilik = 15,
                     Ziplama = 13, KafaVurusu = 12, NewgenMi = false, EtnikBolgeKodu = "MED"
@@ -449,9 +449,9 @@ namespace FM26AgenticEditor.Services
                 {
                     Id = 1003, AdSoyad = "Semih Kılıçsoy", KulupAdi = "Beşiktaş", Pozisyon = "ST, OÖ (SL)", FormaNumarasi = 9,
                     Yas = 21, Uyruk = "Türkiye", BoyCm = 178, KiloKg = 79, TercihEdilenAyak = "Sağ",
-                    MevcutYetenekCA = 138, PotansiyelYetenekPA = 172,
-                    Kondisyon = 82, MacKondisyonu = 45, Moral = 11, SakatMi = true, SakatlikGunSayisi = 4, // Mikro sakatlık + kondisyon düşüşü örneği!
-                    SakatlikEgilimi = 10, Sureklilik = 14, OnemliMacPerformansi = 15, Sadakat = 17, TakimaKatilisAySayisi = 5, MutsuzlukVarMi = true,
+                    MevcutYetenekCA = 142, PotansiyelYetenekPA = 176,
+                    Kondisyon = 82, MacKondisyonu = 45, Moral = 11, SakatMi = true, SakatlikGunSayisi = 4,
+                    SakatlikEgilimi = 10, Sureklilik = 10, OnemliMacPerformansi = 11, Profesyonellik = 13, Sadakat = 17, TakimaKatilisAySayisi = 5, MutsuzlukVarMi = true,
                     HaftalikMaasEuro = 25_000, SozlesmeBitisYili = 2028, PiyasaDegeriEuro = 22_000_000, SerbestKalmaBedeliEuro = 35_000_000,
                     Bitiricilik = 15, Pas = 13, Teknik = 15, KararAlma = 13, Vizyon = 13, Hiz = 15, Dayaniklilik = 15,
                     Ziplama = 11, KafaVurusu = 13, NewgenMi = false, EtnikBolgeKodu = "MED"
@@ -460,10 +460,10 @@ namespace FM26AgenticEditor.Services
                 {
                     Id = 1004, AdSoyad = "Barış Alper Yılmaz", KulupAdi = "Galatasaray", Pozisyon = "OÖ (SĞ, SL), ST", FormaNumarasi = 53,
                     Yas = 26, Uyruk = "Türkiye", BoyCm = 186, KiloKg = 82, TercihEdilenAyak = "Sağ",
-                    MevcutYetenekCA = 146, PotansiyelYetenekPA = 155,
+                    MevcutYetenekCA = 148, PotansiyelYetenekPA = 156,
                     Kondisyon = 98, MacKondisyonu = 98, Moral = 19, SakatMi = false, SakatlikGunSayisi = 0,
-                    SakatlikEgilimi = 4, Sureklilik = 17, OnemliMacPerformansi = 16, Sadakat = 16, TakimaKatilisAySayisi = 42,
-                    HaftalikMaasEuro = 48_000, SozlesmeBitisYili = 2028, PiyasaDegeriEuro = 30_000_000, SerbestKalmaBedeliEuro = 0,
+                    SakatlikEgilimi = 4, Sureklilik = 17, OnemliMacPerformansi = 16, Profesyonellik = 17, Sadakat = 16, TakimaKatilisAySayisi = 42,
+                    HaftalikMaasEuro = 48_000, SozlesmeBitisYili = 2028, PiyasaDegeriEuro = 25_000_000, SerbestKalmaBedeliEuro = 0,
                     Bitiricilik = 13, Pas = 12, Teknik = 14, KararAlma = 13, Vizyon = 12, Hiz = 17, Dayaniklilik = 18,
                     Ziplama = 16, KafaVurusu = 15, NewgenMi = false, EtnikBolgeKodu = "MED"
                 },
@@ -472,20 +472,31 @@ namespace FM26AgenticEditor.Services
                     Id = 1005, AdSoyad = "Uğurcan Çakır", KulupAdi = "Trabzonspor", Pozisyon = "KL", FormaNumarasi = 1,
                     Yas = 30, Uyruk = "Türkiye", BoyCm = 191, KiloKg = 78, TercihEdilenAyak = "Sağ",
                     MevcutYetenekCA = 145, PotansiyelYetenekPA = 152,
-                    Kondisyon = 88, MacKondisyonu = 50, Moral = 15, SakatMi = true, SakatlikGunSayisi = 3, // Kaleci mikro sakatlık örneği!
-                    SakatlikEgilimi = 6, Sureklilik = 16, OnemliMacPerformansi = 17, Sadakat = 19, TakimaKatilisAySayisi = 96,
-                    HaftalikMaasEuro = 38_000, SozlesmeBitisYili = 2028, PiyasaDegeriEuro = 11_000_000, SerbestKalmaBedeliEuro = 0,
+                    Kondisyon = 88, MacKondisyonu = 50, Moral = 15, SakatMi = true, SakatlikGunSayisi = 3,
+                    SakatlikEgilimi = 6, Sureklilik = 16, OnemliMacPerformansi = 17, Profesyonellik = 16, Sadakat = 19, TakimaKatilisAySayisi = 96,
+                    HaftalikMaasEuro = 38_000, SozlesmeBitisYili = 2028, PiyasaDegeriEuro = 28_000_000, SerbestKalmaBedeliEuro = 0, // 30+ yaş yüksek değer testi!
                     Bitiricilik = 3, Pas = 13, Teknik = 12, KararAlma = 15, Vizyon = 13, Hiz = 11, Dayaniklilik = 14,
                     Ziplama = 17, KafaVurusu = 6, NewgenMi = false, EtnikBolgeKodu = "MED"
                 },
                 new OyuncuVerisi
                 {
+                    Id = 1006, AdSoyad = "Harry Kane (30+ Elit İstisna)", KulupAdi = "Bayern Münih", Pozisyon = "ST", FormaNumarasi = 9,
+                    Yas = 32, Uyruk = "İngiltere", BoyCm = 188, KiloKg = 86, TercihEdilenAyak = "Sağ",
+                    MevcutYetenekCA = 182, PotansiyelYetenekPA = 188,
+                    Kondisyon = 95, MacKondisyonu = 96, Moral = 18, SakatMi = false, SakatlikGunSayisi = 0,
+                    SakatlikEgilimi = 7, Sureklilik = 19, OnemliMacPerformansi = 18, Profesyonellik = 20, Sadakat = 18, TakimaKatilisAySayisi = 36,
+                    HaftalikMaasEuro = 420_000, SozlesmeBitisYili = 2028, PiyasaDegeriEuro = 75_000_000, SerbestKalmaBedeliEuro = 0,
+                    Bitiricilik = 20, Pas = 17, Teknik = 18, KararAlma = 19, Vizyon = 18, Hiz = 12, Dayaniklilik = 16,
+                    Ziplama = 15, KafaVurusu = 18, NewgenMi = false, EtnikBolgeKodu = "EUR"
+                },
+                new OyuncuVerisi
+                {
                     Id = 2002109401, AdSoyad = "Emre Demirci (Newgen)", KulupAdi = "Fenerbahçe", Pozisyon = "STP (M)", FormaNumarasi = 4,
                     Yas = 18, Uyruk = "Türkiye", BoyCm = 193, KiloKg = 84, TercihEdilenAyak = "Sol",
-                    MevcutYetenekCA = 124, PotansiyelYetenekPA = 179,
+                    MevcutYetenekCA = 132, PotansiyelYetenekPA = 181,
                     Kondisyon = 96, MacKondisyonu = 90, Moral = 13, SakatMi = false, SakatlikGunSayisi = 0,
-                    SakatlikEgilimi = 6, Sureklilik = 15, OnemliMacPerformansi = 14, Sadakat = 16, TakimaKatilisAySayisi = 3, MutsuzlukVarMi = true,
-                    HaftalikMaasEuro = 8_500, SozlesmeBitisYili = 2029, PiyasaDegeriEuro = 9_500_000, SerbestKalmaBedeliEuro = 25_000_000,
+                    SakatlikEgilimi = 6, Sureklilik = 11, OnemliMacPerformansi = 10, Profesyonellik = 12, Sadakat = 16, TakimaKatilisAySayisi = 3, MutsuzlukVarMi = true,
+                    HaftalikMaasEuro = 8_500, SozlesmeBitisYili = 2029, PiyasaDegeriEuro = 18_500_000, SerbestKalmaBedeliEuro = 25_000_000,
                     Bitiricilik = 6, Pas = 14, Teknik = 13, KararAlma = 15, Vizyon = 12, Hiz = 15, Dayaniklilik = 16,
                     Ziplama = 18, KafaVurusu = 17, NewgenMi = true, EtnikBolgeKodu = "MED"
                 }
@@ -497,24 +508,28 @@ namespace FM26AgenticEditor.Services
                 new KulupVerisi
                 {
                     Id = 201, KulupAdi = "Galatasaray", UlkeAdi = "Türkiye", LigAdi = "Süper Lig", LigItibari = 7100, Itibar = 7350,
+                    AvrupaBasariPuani = 62, IhracatDegerCarpani = 1.15f, KadroYasOrtalamasi = 28.8f, KulupMirasSeviyesi = 3,
                     BakiyeEuro = 42_000_000, TransferButcesiEuro = 28_000_000, MaasButcesiHaftalikEuro = 1_650_000, SponsorlukGeliriYillikEuro = 45_000_000,
                     AntrenmanTesisleri = 16, AltyapiTesisleri = 15, GenclikAkademisi = 16, YonetimTesisVeButceEsnekligi = 11
                 },
                 new KulupVerisi
                 {
                     Id = 202, KulupAdi = "Fenerbahçe", UlkeAdi = "Türkiye", LigAdi = "Süper Lig", LigItibari = 7100, Itibar = 7300,
+                    AvrupaBasariPuani = 64, IhracatDegerCarpani = 1.20f, KadroYasOrtalamasi = 29.1f, KulupMirasSeviyesi = 3,
                     BakiyeEuro = 38_000_000, TransferButcesiEuro = 32_000_000, MaasButcesiHaftalikEuro = 1_700_000, SponsorlukGeliriYillikEuro = 44_000_000,
                     AntrenmanTesisleri = 16, AltyapiTesisleri = 15, GenclikAkademisi = 15, YonetimTesisVeButceEsnekligi = 11
                 },
                 new KulupVerisi
                 {
                     Id = 203, KulupAdi = "Beşiktaş", UlkeAdi = "Türkiye", LigAdi = "Süper Lig", LigItibari = 7100, Itibar = 7050,
+                    AvrupaBasariPuani = 48, IhracatDegerCarpani = 1.10f, KadroYasOrtalamasi = 27.6f, KulupMirasSeviyesi = 2,
                     BakiyeEuro = 18_000_000, TransferButcesiEuro = 15_000_000, MaasButcesiHaftalikEuro = 1_150_000, SponsorlukGeliriYillikEuro = 30_000_000,
                     AntrenmanTesisleri = 15, AltyapiTesisleri = 16, GenclikAkademisi = 16, YonetimTesisVeButceEsnekligi = 10
                 },
                 new KulupVerisi
                 {
                     Id = 204, KulupAdi = "Trabzonspor", UlkeAdi = "Türkiye", LigAdi = "Süper Lig", LigItibari = 7100, Itibar = 6800,
+                    AvrupaBasariPuani = 38, IhracatDegerCarpani = 1.05f, KadroYasOrtalamasi = 26.8f, KulupMirasSeviyesi = 2,
                     BakiyeEuro = 12_000_000, TransferButcesiEuro = 9_500_000, MaasButcesiHaftalikEuro = 750_000, SponsorlukGeliriYillikEuro = 20_000_000,
                     AntrenmanTesisleri = 15, AltyapiTesisleri = 15, GenclikAkademisi = 16, YonetimTesisVeButceEsnekligi = 10
                 }

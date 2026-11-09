@@ -1,62 +1,43 @@
-# FM26 In-Game Editor, Topluluk Rehabilitasyon Paketi & Agentic FM (v0.3.0)
+# FM26 In-Game Editor, Yaşayan Futbol Dünyası & Agentic FM (v0.5.0)
 
-Football Manager 26 (Unity 6 / IL2CPP) için **BepInEx 6 IL2CPP** tabanlı oyun içi gerçek zamanlı veri düzenleyici, sistemik simülasyon rehabilitasyon paketi ve yapay zekâ (Agentic FM) eklentisi.
+Football Manager 26 (Unity 6 / IL2CPP) için **BepInEx 6 IL2CPP** tabanlı oyun içi gerçek zamanlı veri düzenleyici, **20 Yıllık Yaşayan Futbol Dünyası & AI Kadro Mühendisliği** motoru, sistemik simülasyon rehabilitasyon paketi ve yapay zekâ (Agentic FM) eklentisi.
 
 ## Kısayollar
 
-- **`F8`**: 5 Sekmeli Ana Oyun İçi Editör, Rehabilitasyon & Agentic FM penceresini açar/kapatır.
-- **`F9`**: **Masaüstü Oyuncu Röntgeni (Mini-HUD Overlay)** şeridini açar/kapatır (Ana pencere kapalıyken bile seçili oyuncunun **Boy, Kilo, Ayak, Forma No, CA/PA, Kondisyon, Maç Kondisyonu, Sakatlık Eğilimi, Süreklilik, Serbest Kalma Bedeli ve Duran Top Hava Hakimiyeti Puanını** ekranın üst kısmında gösterir).
+- **`F8`**: 6 Sekmeli Ana Oyun İçi Editör, Yaşayan Dünya, Rehabilitasyon & Agentic FM penceresini açar/kapatır.
+- **`F9`**: **Masaüstü Oyuncu Röntgeni (Mini-HUD Overlay)** şeridini açar/kapatır (Seçili oyuncunun **Boy, Kilo, Ayak, Forma No, CA/PA, Piyasa Değeri, Tutarlılık İndeksi ["1 Maç Messi / 1 Maç Halı Saha" Röntgeni], Sakatlık Eğilimi ve Duran Top Hava Hakimiyeti Puanını** ekranın üst kısmında gösterir).
 
-## Özellikler (5 Ana Sekme)
+## Özellikler (6 Ana Sekme)
 
-1. **`[1] Oyuncu & Röntgen` (FMRTE + Masaüstü Ergonomi):**
-   - İsim, kulüp, pozisyon, uyruk ve **forma numarası** filtreleme.
-   - FM26 kart arayüzünde alt katmanlara gizlenen **Boy, Kilo, Tercih Edilen Ayak, Serbest Kalma Bedeli, Sakatlık Eğilimi (`1–20`), Süreklilik (`1–20`), Önemli Maç Performansı (`1–20`) ve Maç Kondisyonu (Sharpness)** görünümü ve düzenleyicisi.
+1. **`[1] Oyuncu & Röntgen` (FMRTE + İstikrar Röntgeni):**
+   - FM26 kart arayüzünde gizlenen **Boy, Kilo, Ayak, Serbest Kalma Bedeli, Sakatlık Eğilimi (`1–20`), Süreklilik (`1–20`), Önemli Maç Performansı (`1–20`), Maç Kondisyonu (`Sharpness`)** ve **Tutarlılık İndeksi (`0–100`)** görünümü ve düzenleyicisi.
    - **CA / PA (`1–200`)** ve temel özellikler (`1–20`) canlı düzenleme.
-   - Tek tıkla **⚡ Kondisyon & Maç Ritmi (%100) + Moral (20/20) + Sakatlık İyileştir**.
 
 2. **`[2] Kulüp & Süper Lig` (Ekonomi & Yerel Gerçekçilik):**
-   - **🇹🇷 Tek Tıkla Türkiye Süper Lig Gerçekçilik & İtibar Kalibrasyonu:**
-     - Süper Lig itibarını **Avrupa İlk 8 (`7850`)** seviyesine çıkarır.
-     - Galatasaray, Fenerbahçe, Beşiktaş ve Trabzonspor'un küresel itibarlarını, sponsorluk gelirlerini ve **Yönetim Tesis/Bütçe Onaylama Esnekliğini (`18/20`)** kalibre eder.
-     - TFF yabancı kuralı (A Takım 14 / İlk 11) parametrelerini eşitler.
-   - Kulüp Bakiyesi, Transfer Bütçesi, Maaş Bütçesi, İtibar (`1–10000`) ve Tesis (`1–20`) düzenleme.
+   - **🇹🇷 Tek Tıkla Türkiye Süper Lig Gerçekçilik & İtibar Kalibrasyonu:** Süper Lig itibarını **Avrupa İlk 8 (`7850`)** seviyesine, GS/FB/BJK/TS itibarlarını ve yönetim tesis/bütçe esnekliğini (`18/20`) kalibre eder.
 
-3. **`[3] Rehabilitasyon & Maç Motoru` (Topluluk Eleştirileri Çözüm Merkezi):**
-   - **🏥 Tıbbi Denge & Mikro-Sakatlık Kalkanı:**
-     - Küresel Sakatlık Olasılık Çarpanı (`%50–%100`, varsayılan `%68` = `-%32` azaltma).
-     - Kalecilerin temassız mikro sakatlıklarını (`1–12 gün`) otomatik iptal etme.
-     - Kısa süreli mikro sakatlıklar sonrası **Maç Kondisyonunun (Match Sharpness) sıfırlanmasını önleme (`%90` koruma)**.
-   - **🌧️ Maç Motoru & Çevre Yamaları:**
-     - Aralıksız yağmur hatasını lig coğrafyasına göre dengeleme (`Weather Fix`).
-     - Santra vuruşu sonrası savunma uyuşukluğu önleyici.
-     - Klasik FM24 `Space` (Boşluk) tuşu davranışı ve oynanmayan arka plan/kadın liglerinin simülasyon yükünü azaltıcı (`Lite DB`).
-   - **🛡️ Transfer & Diyalog Mantığı:**
-     - AI kulüplerinin kullanıcıdan `80–100M €` istediği fahiş bonservis çarpanını (`User Tax`) dengeleme.
-     - Yeni transferlerin (`<12 ay`) gerçek dışı Suudi Arabistan/transfer isyanlarını tek tuşla temizleme.
-   - **🎯 Duran Top Forma No & Hava Hakimiyeti Rehberi:**
-     - Duran top ekranında sadece forma numarası görünen oyuncular için **`Forma #No -> İsim + Boy + Zıplama + Kafa + Hava Hakimiyeti Puanı (0-100)`** tablosu.
-   - **🖼️ AI Regen (Newgen) Yüz Paketi Eşleştirici (`config.xml`):**
-     - Bozuk 3D regen yüzleri yerine oyundaki Newgen ID ve etnik bölgelerine göre `graphics/pictures/person/` altında çalışan `config.xml` dosyasını oyun içinden tek tıkla üretir.
+3. **`[3] 🌍 Yaşayan Dünya` (Dinamik Futbol Dünyası & Akıllı AI Direktör — v0.5.0):**
+   - **🦅 Benfica İhracat Katsayısı (`1.0x -> 3.2x`):** Kulübünüz Avrupa'da başarılı oldukça ülke sabit değer tavanını (`25M €`) kırar; geliştirdiğiniz genç yeteneklerin piyasa değerini Benfica/Ajax/Elit Avrupa seviyesine (`75M–95M €`) ölçekler.
+   - **🌊 Yükselen Dalga & Otonom Rakip Güçlendirici (`Anti-Add-Manager`):** Ligin itibarı arttıkça ligdeki diğer takımların da yayın/sponsorluk gelirlerini, tesislerini ve bütçelerini büyütür; ezeli rakiplerin batıp 2. lige düşmesini engeller.
+   - **🧠 AI Kadro Mühendisliği 2.0 (30+ Yaş Bonservis Tavanı & Jenerasyon Yenileme):**
+     - `30+ yaş` ve `CA < 172` olan oyunculara (Harry Kane sınıfı dünya yıldızları hariç) AI kulüplerinin `8.5M €` üstü bonservis gömmesini engeller.
+     - Kadro yaş ortalaması `28.5` üstüne çıkan dev kulüpleri zorunlu olarak `18–23 yaş` wonderkid transferine yönlendirir.
+   - **🌍 20 Yıllık Dünya Evrimi Simülatörü:** Her sezon yeni yükselen güç merkezleri (Göztepe, Bursaspor, Samsunspor, Parma, Deportivo vb.) ve gerçekçi mali döngüler üreterek 20 sezon boyunca değişen bir futbol dünyası kurar.
+   - **🏆 Kulüp Mirası & Başarma Hissiyatı Ödülü:** Kazanılan Şampiyonlar Ligi / Avrupa zaferlerini kulübün kalıcı Miras Seviyesine (`1–10`), altyapı akademisine, sponsorluk sınıfına ve ihracat çarpanına işler.
 
-4. **`[4] Agentic FM (AI)`:**
-   - Seçili oyuncunun CA/PA ve özellik dağılımına göre **FM26 Rol & Bireysel Antrenman Analizi**.
-   - Seçili kulübün bütçe ve tesislerine göre **Futbol Direktörü (DoF) Strateji Raporu**.
-   - **Basın Toplantısı & Oyuncu Görüşmesi Diyalog Üretici** (Yerleşik motor veya `Ollama` / OpenAI uyumlu yerel LLM ile).
+4. **`[4] Rehabilitasyon & Paket` (Tıbbi Denge, Yağmur, Duran Top & Harici Paket Üretici):**
+   - **Tıbbi Kalkan (`-%32` sakatlık indirimi, kaleci koruması, mikro sakatlık kondisyon koruyucu)**, **Aralıksız Yağmur Düzeltici**, **Fahiş Bonservis (`User Tax`) Dengeleyici**, **Suudi Arabistan İsyan Filtresi**, **Duran Top Forma No Rehberi** ve tek tıkla **Masaüstü Antrasit Skin / Editor Data XML / AI Regen `config.xml` / 0ms CSV Tablo** üretici.
 
-5. **`[5] Geri Al (Undo) & Canlı IL2CPP Keşif`:**
-   - **Tam Geri Al (Undo) Yığını:** Yapılan her düzenleme (Süper Lig paketi ve Tıbbi Kalkan dahil) önceki değeriyle kaydedilir; tek tuşla geri alınır.
-   - **Canlı IL2CPP Sınıf Tarayıcı:** Oyun içindeyken FM26 belleğindeki gerçek `Player`, `Club`, `Injury`, `Weather`, `PressConference` sınıflarını tarar ve `BepInEx/LogOutput.log` dosyasına yazar.
+5. **`[5] Agentic & Soyunma Odası` (Somut Maç Etkili Konuşmalar & AI Scout):**
+   - **Somut Maç Etkili Soyunma Odası Konuşmaları:** "Hadi aslanım" yerine oyuncunun `Karar Alma (+2)`, `Süreklilik (+3)`, `Önemli Maç Performansı (+2)` ve `Moral` özelliklerine doğrudan etki eden 3 taktiksel/psikolojik müdahale.
+   - **"1 Maç Messi / 1 Maç Halı Saha" Teşhis Motoru** ve LLM destekli basın toplantısı ajanı.
+
+6. **`[6] Undo & Kanca`:**
+   - **Tam Geri Al (Undo) Yığını**, **7 Dinamik HarmonyX Kancası** ve **Canlı IL2CPP Sınıf Tarayıcı**.
 
 ## Derleme
 
 ```powershell
 cd E:\rea\kisisel\oyun-kiti\fm26-agentic-editor
 dotnet build -c Release
-```
-
-FM26 ve BepInEx 6 IL2CPP kurulduktan sonra:
-
-```powershell
-dotnet build -c Release -p:OyunKlasoru="C:\Program Files (x86)\Steam\steamapps\common\Football Manager 26"
 ```

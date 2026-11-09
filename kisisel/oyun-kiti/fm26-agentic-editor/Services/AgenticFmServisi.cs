@@ -4,16 +4,16 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FM26AgenticEditor.Models;
+using UnityEngine;
 
 namespace FM26AgenticEditor.Services
 {
     /// <summary>
-    /// "Agentic FM" katmanı:
-    /// 1. Oyuncu verilerinden taktiksel rol, gelişim planı ve scout raporu üretir.
-    /// 2. Kulüp finans ve tesis verilerinden transfer stratejisi çıkarır.
-    /// 3. Basın toplantısı / soyunma odası konuşmaları için bağlama duyarlı diyalog üretir.
-    /// Yerel LLM (Ollama: http://localhost:11434/v1/chat/completions) veya OpenAI/Claude uyumlu endpoint destekler;
-    /// LLM bağlı değilse yerleşik kural tabanlı motorla anında yanıt verir.
+    /// "Agentic FM 2.0" katmanı:
+    /// 1. Oyuncu verilerinden taktiksel rol, gelişim planı ve "1 Maç Messi / 1 Maç Halı Saha" Tutarlılık Teşhisi üretir.
+    /// 2. Kulüp finans, tesis ve Benfica İhracat Çarpanı verilerinden uzun vadeli strateji çıkarır.
+    /// 3. Soyunma odası konuşmalarını "hiçbir işe yaramayan oyuncak" olmaktan çıkarıp, oyuncuların Karar Alma,
+    ///    Süreklilik, Önemli Maç Performansı ve Moral değerlerine somut maç içi etki olarak uygular.
     /// </summary>
     public class AgenticFmServisi
     {
@@ -23,7 +23,72 @@ namespace FM26AgenticEditor.Services
         public string ModelAdi { get; set; } = "qwen2.5:7b";
         public bool UzakLlmKullan { get; set; } = false;
         public bool CalisiyorMu { get; private set; }
-        public string SonRapor { get; private set; } = "Henüz bir AI analizi çalıştırılmadı. Yukarıdan bir aksiyon seçin.";
+        public string SonRapor { get; private set; } = "Henüz bir AI analizi veya soyunma odası müdahalesi çalıştırılmadı.";
+
+        /// <summary>
+        /// Soyunma odası konuşmasını sadece kuru metin olmaktan çıkarıp oyuncunun gerçek maç içi zihinsel
+        /// ve istikrar parametrelerine uygular (Undo destekli).
+        /// </summary>
+        public void SoyunmaOdasiGercekEtkiUygula(FmVeriKoprusu kopru, OyuncuVerisi o, int stratejiTipi)
+        {
+            if (o == null || !CevrimiciKoruma.YazmaIzniVarMi())
+            {
+                SonRapor = o == null ? "Lütfen önce bir oyuncu seçin." : CevrimiciKoruma.DurumMesaji;
+                return;
+            }
+
+            int eKarar = o.KararAlma;
+            int eVizyon = o.Vizyon;
+            int eSureklilik = o.Sureklilik;
+            int eOnemli = o.OnemliMacPerformansi;
+            int eMoral = o.Moral;
+
+            string baslik;
+            string aciklama;
+
+            switch (stratejiTipi)
+            {
+                case 0: // Taktiksel Odak & Ön Alan Presi
+                    o.KararAlma = Mathf.Clamp(o.KararAlma + 2, 1, 20);
+                    o.Vizyon = Mathf.Clamp(o.Vizyon + 1, 1, 20);
+                    o.Moral = Mathf.Clamp(o.Moral + 1, 1, 20);
+                    baslik = "🎯 Taktiksel Odak & Ön Alan Pres Talimatı";
+                    aciklama = $"\"Rakibin oyun kurmasını birinci bölgede bozacağız; topu kazandığın an dikine ara pası ara!\"\n" +
+                               $"Somut Maç Etkisi: Karar Alma {eKarar}->{o.KararAlma} (+2), Vizyon {eVizyon}->{o.Vizyon} (+1), Moral {eMoral}->{o.Moral}.";
+                    break;
+
+                case 1: // "1 Maç Messi 1 Maç Halı Saha" İstikrarsızlık Tedavisi (Mentorluk & Baskı Azaltma)
+                    o.Sureklilik = Mathf.Clamp(o.Sureklilik + 3, 1, 20);
+                    o.OnemliMacPerformansi = Mathf.Clamp(o.OnemliMacPerformansi + 2, 1, 20);
+                    o.Moral = Mathf.Clamp(o.Moral + 2, 1, 20);
+                    baslik = "🛡️ Özgüven & İstikrar Aşılaması (Halı Saha Dalgalanmasını Kır)";
+                    aciklama = $"\"Hata yapmaktan korkma; sorumluluk bende. Sahada basit başla ve ritmini bul!\"\n" +
+                               $"Somut Maç Etkisi: Süreklilik {eSureklilik}->{o.Sureklilik} (+3), Önemli Maçlar {eOnemli}->{o.OnemliMacPerformansi} (+2), Tutarlılık İndeksi: {o.TutarlilikIndeksi}/100 ({o.TutarlilikEtiketi}).";
+                    break;
+
+                default: // Sert Uyarı / Rehaveti Kır
+                    o.KararAlma = Mathf.Clamp(o.KararAlma + 2, 1, 20);
+                    o.OnemliMacPerformansi = Mathf.Clamp(o.OnemliMacPerformansi + 2, 1, 20);
+                    o.Sureklilik = Mathf.Clamp(o.Sureklilik + 1, 1, 20);
+                    baslik = "🔥 Soyunma Odası Ültimatomu (Rehaveti Kır)";
+                    aciklama = $"\"Bu formayı giyiyorsan sahada yürüyemezsin! İkinci yarıda her ikili mücadelede seni göreceğim!\"\n" +
+                               $"Somut Maç Etkisi: Karar Alma {eKarar}->{o.KararAlma} (+2), Önemli Maçlar {eOnemli}->{o.OnemliMacPerformansi} (+2), Süreklilik {eSureklilik}->{o.Sureklilik} (+1).";
+                    break;
+            }
+
+            kopru.KayitEkle("Soyunma Odası", o.AdSoyad, baslik,
+                $"Karar:{eKarar} Sürek:{eSureklilik} ÖnMaç:{eOnemli}",
+                $"Karar:{o.KararAlma} Sürek:{o.Sureklilik} ÖnMaç:{o.OnemliMacPerformansi}", () =>
+                {
+                    o.KararAlma = eKarar;
+                    o.Vizyon = eVizyon;
+                    o.Sureklilik = eSureklilik;
+                    o.OnemliMacPerformansi = eOnemli;
+                    o.Moral = eMoral;
+                });
+
+            SonRapor = $"=== {baslik} ({o.AdSoyad}) ===\n{aciklama}";
+        }
 
         public void OyuncuScoutAnaliziYap(OyuncuVerisi o)
         {
@@ -41,14 +106,14 @@ namespace FM26AgenticEditor.Services
 
             var istem = $@"Sen Football Manager 26 baş gözlemcisi (Chief Scout) ve taktik analistisin.
 Oyuncu: {o.AdSoyad} ({o.Yas} yaş, {o.Uyruk}, Kulüp: {o.KulupAdi}, Pozisyon: {o.Pozisyon})
-CA/PA: {o.MevcutYetenekCA} / {o.PotansiyelYetenekPA} | Kondisyon: %{o.Kondisyon} | Moral: {o.Moral}/20
-Özellikler (1-20): Bitiricilik:{o.Bitiricilik}, Pas:{o.Pas}, Teknik:{o.Teknik}, Karar Alma:{o.KararAlma}, Vizyon:{o.Vizyon}, Hız:{o.Hiz}, Dayanıklılık:{o.Dayaniklilik}
-Haftalık Maaş: {o.HaftalikMaasEuro:N0}€ | Piyasa Değeri: {o.PiyasaDegeriEuro:N0}€
+CA/PA: {o.MevcutYetenekCA} / {o.PotansiyelYetenekPA} | Tutarlılık İndeksi: {o.TutarlilikIndeksi}/100 ({o.TutarlilikEtiketi})
+Gizli Özellikler: Süreklilik:{o.Sureklilik}/20, Önemli Maçlar:{o.OnemliMacPerformansi}/20, Sakatlık Eğilimi:{o.SakatlikEgilimi}/20
+Özellikler: Bitiricilik:{o.Bitiricilik}, Pas:{o.Pas}, Teknik:{o.Teknik}, Karar Alma:{o.KararAlma}, Vizyon:{o.Vizyon}, Hız:{o.Hiz}, Dayanıklılık:{o.Dayaniklilik}
 
 Kısa ve maddeler halinde:
 1. En uygun FM26 oyuncu rolü ve görevini,
-2. Bireysel antrenman odağını,
-3. CA/PA farkına göre gelişim tavanını Türkçe olarak analiz et.";
+2. '1 maç Messi 1 maç halı saha' dalgalanması olup olmadığını ve çözümünü,
+3. Avrupa ihracat (Benfica standardı) bonservis potansiyelini Türkçe analiz et.";
 
             ArkaPlandaLlmSorgula(istem, () => YerelOyuncuRaporuUret(o));
         }
@@ -57,7 +122,7 @@ Kısa ve maddeler halinde:
         {
             if (k == null)
             {
-                SonRapor = "Lütfen önce Kulüp & Finans sekmesinden bir kulüp seçin.";
+                SonRapor = "Lütfen önce Kulüp & Süper Lig sekmesinden bir kulüp seçin.";
                 return;
             }
 
@@ -67,12 +132,10 @@ Kısa ve maddeler halinde:
                 return;
             }
 
-            var istem = $@"Sen Football Manager 26 Futbol Direktörüsün (Director of Football).
-Kulüp: {k.KulupAdi} ({k.LigAdi}) | İtibar: {k.Itibar}/10000
-Bakiye: {k.BakiyeEuro:N0}€ | Transfer Bütçesi: {k.TransferButcesiEuro:N0}€ | Haftalık Maaş Bütçesi: {k.MaasButcesiHaftalikEuro:N0}€
-Tesisler (1-20): Antrenman:{k.AntrenmanTesisleri}, Altyapı:{k.AltyapiTesisleri}, Gençlik Akademisi:{k.GenclikAkademisi}
-
-3 maddede kısa Türkçe yönetim ve transfer stratejisi öner.";
+            var istem = $@"Sen Football Manager 26 Futbol Direktörüsün.
+Kulüp: {k.KulupAdi} ({k.LigAdi}) | İtibar: {k.Itibar}/10000 | Benfica İhracat Çarpanı: {k.IhracatDegerCarpani:0.00}x | Kadro Yaş Ort: {k.KadroYasOrtalamasi:0.0}
+Bakiye: {k.BakiyeEuro:N0}€ | Transfer Bütçesi: {k.TransferButcesiEuro:N0}€
+3 maddede kısa Türkçe kadro mühendisliği ve ihracat stratejisi öner.";
 
             ArkaPlandaLlmSorgula(istem, () => YerelKulupRaporuUret(k));
         }
@@ -88,13 +151,13 @@ Tesisler (1-20): Antrenman:{k.AntrenmanTesisleri}, Altyapı:{k.AltyapiTesisleri}
                 SonRapor =
                     $"[Agentic FM - Basın Toplantısı & Diyalog Önerisi]\n" +
                     $"Gündem: \"{konu}\"\n\n" +
-                    $"1. [Sakin / Profesyonel (Moral +1)]: \"{k?.KulupAdi ?? "Kulübümüz"} olarak planımıza sadığız. {o?.AdSoyad ?? "Oyuncumuz"} antrenmanlarda harika bir özveri gösteriyor.\"\n" +
-                    $"2. [Tutkulu / Motive Edici (Moral +2, Baskı +1)]: \"Bu formanın ağırlığını bilen herkes sahada %100'ünü verecek. Taraftarımız merak etmesin!\"\n" +
-                    $"3. [Korumacı / Baskıyı Azaltan]: \"Medyanın beklentilerini anlıyorum ancak henüz çok genç ve gelişim sürecinde (CA:{o?.MevcutYetenekCA ?? 140} -> PA:{o?.PotansiyelYetenekPA ?? 170}).\"";
+                    $"1. [Sakin / Profesyonel (Takım Konsantrasyonu +1)]: \"{k?.KulupAdi ?? "Kulübümüz"} artık Avrupa'nın elit bir ihracat ve yarışma kulübüdür ({k?.IhracatDegerCarpani ?? 1.5f:0.00}x). {o?.AdSoyad ?? "Oyuncumuz"} sistemimizin merkezinde.\"\n" +
+                    $"2. [Tutkulu / Meydan Okuyan (Moral +2)]: \"10 yıl önceki statükoyu yıktık; artık oyuncularımızı ucuza kapatan değil, Avrupa piyasasını belirleyen kulübüz!\"\n" +
+                    $"3. [Korumacı / İstikrar Odaklı (Baskıyı Azaltır)]: \"{o?.AdSoyad ?? "Genç oyuncumuz"} henüz gelişim evresinde (Tutarlılık: {o?.TutarlilikIndeksi ?? 75}/100). Üzerindeki medya baskısını ben üstleniyorum.\"";
                 return;
             }
 
-            var istem = $"FM26 teknik direktörü olarak şu basın toplantısı sorusuna oyuncu moralini yükseltecek 3 farklı üslupta (Sakin, Tutkulu, Korumacı) kısa Türkçe yanıt üret: {konu}";
+            var istem = $"FM26 teknik direktörü olarak şu basın toplantısı sorusuna 3 farklı üslupta kısa Türkçe yanıt üret: {konu}";
             ArkaPlandaLlmSorgula(istem, () => SonRapor);
         }
 
@@ -102,44 +165,43 @@ Tesisler (1-20): Antrenman:{k.AntrenmanTesisleri}, Altyapı:{k.AltyapiTesisleri}
         {
             int gelisimPayi = Math.Max(0, o.PotansiyelYetenekPA - o.MevcutYetenekCA);
             string onerilenRol = (o.Vizyon >= 16 && o.Pas >= 16)
-                ? "Gelişmiş Oyun Kurucu (Hücum) / Serbest 10 Numara (Trequartista)"
+                ? "Gelişmiş Oyun Kurucu (Hücum) / Serbest 10 Numara"
                 : (o.Hiz >= 16 && o.Teknik >= 15)
                     ? "İçe Kat Eden Kanat (Hücum) / Kanat Forvet"
                     : (o.Bitiricilik >= 15)
                         ? "Yaratıcı Forvet / Komple Forvet (Destek)"
                         : "İki Yönlü Orta Saha / Mezalla (Destek)";
 
-            string antrenmanOdagi = o.Dayaniklilik < 15
-                ? "Dayanıklılık & Çeviklik (Maç temposunu 90 dakikaya yaymak için)"
-                : (o.Bitiricilik < 15 ? "Son Vuruş & Soğukkanlılık" : "Hücum Hareketliliği & Pas");
+            string tutarlilikTeshisi = o.TutarlilikIndeksi < 65
+                ? $"⚠️ DİKKAT ('1 Maç Messi / 1 Maç Halı Saha' Teşhisi): Oyuncunun Süreklilik ({o.Sureklilik}/20) ve Önemli Maç ({o.OnemliMacPerformansi}/20) değerleri düşük! Çözüm: Yukarıdaki '🛡️ Özgüven & İstikrar Aşılaması' soyunma odası konuşmasını uygulayın."
+                : $"✅ İstikrar Röntgeni ({o.TutarlilikIndeksi}/100 - {o.TutarlilikEtiketi}): Süreklilik ({o.Sureklilik}/20) ve Önemli Maç ({o.OnemliMacPerformansi}/20) değerleri üst düzey; her hafta standart performans verir.";
 
-            string durumUyarisi = o.SakatMi
-                ? "⚠️ Oyuncu şu an SAKAT. Antrenman yükünü düşürün veya FMRTE sekmesinden iyileştirin."
-                : (o.Kondisyon < 85 ? "⚠️ Kondisyon kritik seviyede (%85 altı), rotasyon önerilir." : "✅ Fiziksel olarak ilk 11'e tamamen hazır.");
+            string yasUyarisi = o.Yas >= 30
+                ? (o.HarryKaneIstisnasiMi
+                    ? "🌟 30+ Yaş Elit İstisna (Harry Kane Sınıfı): Yaşına rağmen CA (172+) elit olduğu için değerini koruyor."
+                    : "📉 30+ Yaş Amortisman Uyarısı: Avrupa kulüpleri bu yaşta yüksek bonservis ödemez; alternatif genç (18-22 yaş) ikamesini hazırlayın.")
+                : $"🦅 Benfica İhracat Potansiyeli: Avrupa'da başarılı bir kulüp çarpanıyla (2.4x) bu oyuncunun gerçek piyasa tavanı ~{Math.Clamp((o.PotansiyelYetenekPA - 110) * 1_250_000L, 25_000_000L, 115_000_000L):N0}€ seviyesidir.";
 
             return
-                $"=== AGENTIC FM SCOUT & TAKTİK RAPORU: {o.AdSoyad.ToUpperInvariant()} ===\n" +
+                $"=== AGENTIC FM SCOUT & TUTARLILIK RÖNTGENİ: {o.AdSoyad.ToUpperInvariant()} ===\n" +
                 $"• Mevcut / Potansiyel (CA/PA): {o.MevcutYetenekCA} / {o.PotansiyelYetenekPA} (Gelişim Açığı: +{gelisimPayi} puan)\n" +
                 $"• Önerilen FM26 Rolü: {onerilenRol}\n" +
-                $"• Bireysel Antrenman Odağı: {antrenmanOdagi}\n" +
-                $"• Fiziksel & Moral Durumu: {durumUyarisi} (Moral: {o.Moral}/20)\n" +
-                $"• Sözleşme & Değer Analizi: {o.SozlesmeBitisYili} yılına kadar haftalık {o.HaftalikMaasEuro:N0}€ kazanıyor. " +
-                (gelisimPayi >= 20
-                    ? "Wonderkid profilinde; serbest kalma maddesi olmadan sözleşmesini hemen uzatın!"
-                    : "Kadro çekirdeği için ideal maliyet/performans dengesinde.");
+                $"• {tutarlilikTeshisi}\n" +
+                $"• {yasUyarisi}";
         }
 
         private static string YerelKulupRaporuUret(KulupVerisi k)
         {
-            string tesisNotu = k.AltyapiTesisleri < 18
-                ? $"Altyapı ({k.AltyapiTesisleri}/20) ve Antrenman ({k.AntrenmanTesisleri}/20) tesislerini geliştirmek wonderkid üretimini doğrudan artırır."
-                : "Tesisler dünya standartlarında; bütçeyi doğrudan A takım yıldızlarına yönlendirebilirsiniz.";
+            string yasAnalizi = k.KadroYasOrtalamasi >= 28.5f
+                ? $"⚠️ Kadro Yaşlanması ({k.KadroYasOrtalamasi:0.0} yaş): Takım 3 sezon içinde çöküş yaşayabilir! 'Yaşayan Dünya' sekmesinden AI Jenerasyon Yenilemeyi çalıştırın."
+                : $"✅ Kadro Yaş Eğrisi ({k.KadroYasOrtalamasi:0.0} yaş): Dinamik ve uzun vadeli rekabete uygun.";
 
             return
                 $"=== AGENTIC FM FUTBOL DİREKTÖRÜ RAPORU: {k.KulupAdi.ToUpperInvariant()} ===\n" +
-                $"• Finansal Sağlık: Bakiye {k.BakiyeEuro:N0}€ | Transfer Bütçesi: {k.TransferButcesiEuro:N0}€\n" +
-                $"• Maaş Tavanı Önerisi: Haftalık bütçenin ({k.MaasButcesiHaftalikEuro:N0}€) %12'sini (~{k.MaasButcesiHaftalikEuro * 12 / 100:N0}€) tek bir oyuncuya aşmayın.\n" +
-                $"• Altyapı & Tesis Stratejisi: {tesisNotu}";
+                $"• Kulüp Mirası & Durum: Seviye {k.KulupMirasSeviyesi}/10 ({k.DunyaDurumEtiketi})\n" +
+                $"• Benfica İhracat Çarpanı: {k.IhracatDegerCarpani:0.00}x | Avrupa Başarı Puanı: {k.AvrupaBasariPuani}/200\n" +
+                $"• {yasAnalizi}\n" +
+                $"• Finansal Güç: Bakiye {k.BakiyeEuro:N0}€ | Transfer Bütçesi: {k.TransferButcesiEuro:N0}€ | Sponsorluk: {k.SponsorlukGeliriYillikEuro:N0}€/yıl";
         }
 
         private void ArkaPlandaLlmSorgula(string istem, Func<string> yedekYanitUretici)
@@ -189,4 +251,3 @@ Tesisler (1-20): Antrenman:{k.AntrenmanTesisleri}, Altyapı:{k.AltyapiTesisleri}
         }
     }
 }
-
